@@ -1,0 +1,34 @@
+{
+  "openapi": "3.0.2",
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {}
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3030/",
+      "description": "Local server"
+    }
+  ],
+  "info": {
+    "description": "REST API Documentation",
+    "version": "0.0.1",
+    "title": "REST API Documentation",
+    "contact": {
+      "name": "REST API example",
+      "url": "https://www.linkedin.com/in/mykhaylo-gusak/",
+      "email": "mykhaylo.gusak@hotmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://github.com/MykhayloGusak/api_demo_insurance"
+    }
+  },
+  "paths": {}
+}
