@@ -37,6 +37,11 @@ class App {
     // user router
     this.userRouter.routes(this.app);
 
+    // error handler
+    this.app.use((err, req, res, next) => {
+      res.status(500).json({ message: 'error' });
+    });
+
     // set port
     this.app.set('port', this.port || 3030);
 
