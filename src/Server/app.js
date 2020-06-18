@@ -3,6 +3,9 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const config = require('config');
 
+// router
+const UserRoutes = require('../Components/User/Router');
+
 // swagger docs
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
@@ -10,6 +13,7 @@ const swaggerDocument = require('./swagger.json');
 class App {
   constructor() {
     this.app = express();
+    this.userRouter = new UserRoutes();
     this.port = config.get('app.port');
     this.config();
   }
@@ -29,6 +33,9 @@ class App {
 
     // HTTP request logger middleware
     this.app.use(morgan('dev'));
+
+    // user router
+    this.userRouter.routes(this.app);
 
     // set port
     this.app.set('port', this.port || 3030);
