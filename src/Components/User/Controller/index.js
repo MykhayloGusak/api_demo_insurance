@@ -2,6 +2,8 @@ const UserService = require('../Service');
 const config = require('config');
 const jwt = require('jsonwebtoken');
 
+const { NotFoundError } = require('../../..//Server/errors');
+
 module.exports = class UserController {
   constructor() {
     this.userService = new UserService();
@@ -19,11 +21,13 @@ module.exports = class UserController {
   login = async (req, res, next) => {
     try {
       const { email } = req.body;
-      const { user } = await this.userService.findByEmail(email);
+      const {
+        user: { role },
+      } = await this.userService.findByEmail(email);
 
       const token = jwt.sign(
         {
-          role: user.role,
+          role,
         },
         config.get('app.secret')
       );

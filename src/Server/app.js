@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const config = require('config');
+const { errorHandler } = require('../Middleware/ErrorHandler');
 
 // router
 const UserRoutes = require('../Components/User/Router');
@@ -34,13 +35,11 @@ class App {
     // HTTP request logger middleware
     this.app.use(morgan('dev'));
 
-    // user router
+    // user user router
     this.userRouter.routes(this.app);
 
     // error handler
-    this.app.use((err, req, res, next) => {
-      res.status(500).json({ message: 'error' });
-    });
+    this.app.use(errorHandler);
 
     // set port
     this.app.set('port', this.port || 3030);
