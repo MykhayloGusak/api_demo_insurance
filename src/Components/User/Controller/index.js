@@ -38,4 +38,25 @@ module.exports = class UserController {
       next(err);
     }
   };
+
+  /**
+   * Read user information by ID
+   *
+   * @name GET/user/id/:id
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {express.NextFunction} next
+   * @return {undefined}
+   */
+  getUserById = async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const { user } = await this.userService.findByid(userId);
+
+      res.status(200).json(user);
+    } catch (err) {
+      console.warn(err);
+      next(err);
+    }
+  };
 };

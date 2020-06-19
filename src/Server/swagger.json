@@ -9,6 +9,27 @@
       }
     },
     "schemas": {
+      "user_data": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "a1ece5db-cd14-4f21-813a-466653e7be86"
+          },
+          "name": {
+            "type": "string",
+            "example": "Juan"
+          },
+          "email": {
+            "type": "string",
+            "example": "example@email.com"
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
+          }
+        }
+      },
       "authentication_body": {
         "type": "object",
         "properties": {
@@ -36,12 +57,30 @@
           }
         }
       },
+      "401_unauthorized": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        }
+      },
       "404_not_found_error": {
         "type": "object",
         "properties": {
           "message": {
             "type": "string",
             "example": "User Not Found"
+          }
+        }
+      },
+      "405_method_not_allowed": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Method Not Allowed"
           }
         }
       },
@@ -80,11 +119,6 @@
     "/login": {
       "post": {
         "tags": ["Authentication"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "summary": "User authentication",
         "requestBody": {
           "content": {
@@ -112,6 +146,81 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/400_data_validation_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/404_not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/500_internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/id/{id}": {
+      "get": {
+        "tags": ["User"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "a1ece5db-cd14-4f21-813a-466653e7be86"
+            },
+            "description": "User reference id"
+          }
+        ],
+        "summary": "Read user information by id",
+        "responses": {
+          "200": {
+            "description": "Request successfully done",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/user_data"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/400_data_validation_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/401_unauthorized"
                 }
               }
             }

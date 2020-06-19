@@ -4,7 +4,7 @@ const {
   InternalServerError,
 } = require('../../Server/errors');
 
-const errorHandler = (req, res, next, err) => {
+const errorHandler = (err, req, res, next) => {
   const { name = InternalServerError.name } = err;
   let status, message;
 

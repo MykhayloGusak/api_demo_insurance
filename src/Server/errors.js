@@ -50,4 +50,8 @@ class DataBaseError extends Error {
   }
 }
 
-module.exports = { NotFoundError, DataBaseError, InternalServerError };
+module.exports = {
+  NotFoundError,
+  DataBaseError,
+  InternalServerError,
+};

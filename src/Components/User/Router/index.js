@@ -1,10 +1,21 @@
+// business logic layer
 const UserController = require('../Controller');
+
+// data validator
 const UserDataValidation = require('../Validator');
+
+// middleware
+const userAuthentication = require('../../../Middleware/userAuthentication');
+const {
+  adminAuthentication,
+} = require('../../../Middleware/adminAuthentication');
 
 module.exports = class UserRoutes {
   constructor() {
     this.userController = new UserController();
     this.userDataValidation = new UserDataValidation();
+    this.userSessionAuthentication = userAuthentication;
+    this.adminSessionAuthentication = adminAuthentication;
   }
 
   // Router
@@ -13,8 +24,14 @@ module.exports = class UserRoutes {
       .route('/login')
       .post(this.userDataValidation.toCheckEmail, this.userController.login);
 
-    app.route('/id/:userId').get();
+    app
+      .route('/user/id/:userId')
+      .get(
+        this.userSessionAuthentication,
+        this.userDataValidation.toCheckId,
+        this.userController.getUserById
+      );
 
-    app.route('/name/:userName').get();
+    app.route('/user/name/:userName').get();
   }
 };
