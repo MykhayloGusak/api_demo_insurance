@@ -2,7 +2,6 @@ const app = require('../../Server/app');
 const jwt = require('jsonwebtoken');
 
 const { assert } = require('chai');
-const faker = require('faker');
 const request = require('supertest');
 const config = require('config');
 
@@ -12,16 +11,31 @@ describe('GET /user/id/{id} -> ', () => {
   let secret = config.get('app.secret');
 
   describe('check user essential info -> toCheckBodyEssentialInformation()', () => {
-    let userId, adminToken, userToken;
+    let userId, existingUser, adminToken, userToken, invalidToken;
 
     beforeEach(() => {
-      userId = 'a0ece5db-cd14-4f21-812f-966633e7be86';
+      existingUser = {
+        id: 'a0ece5db-cd14-4f21-812f-966633e7be86',
+        name: 'Britney',
+        email: 'britneyblankenship@quotezart.com',
+        role: 'admin',
+      };
 
       adminToken = jwt.sign(
         {
           role: adminRole,
         },
         secret,
+        {
+          expiresIn: '1m',
+        }
+      );
+
+      invalidToken = jwt.sign(
+        {
+          role: undefined,
+        },
+        'invalid secret',
         {
           expiresIn: '1m',
         }
@@ -37,11 +51,11 @@ describe('GET /user/id/{id} -> ', () => {
         }
       );
     });
-    describe.only('OK Cases', () => {
+    describe('OK Cases', () => {
       describe('Admin Cases', () => {
         it('When admin send the request and user exists, expect to return user data', async () => {
           //Arrange
-          let id = userId;
+          let id = existingUser.id;
           let token = adminToken;
 
           //Act
@@ -51,13 +65,13 @@ describe('GET /user/id/{id} -> ', () => {
 
           //Assert
           assert.equal(res.status, 200);
-          assert.exists(res.body.token);
+          assert.deepEqual(res.body, existingUser);
         });
       });
       describe('Admin Cases', () => {
         it('When user send the request and user exists, expect to return user data', async () => {
           //Arrange
-          let id = userId;
+          let id = existingUser.id;
           let token = userToken;
 
           //Act
@@ -67,66 +81,67 @@ describe('GET /user/id/{id} -> ', () => {
 
           //Assert
           assert.equal(res.status, 200);
-          assert.exists(res.body.token);
+          assert.deepEqual(res.body, existingUser);
         });
       });
     });
     describe('ERROR Cases', () => {
-      describe('body.email', () => {
-        it('When email is an object, expect an Error and status 400', async () => {
+      describe('Unauthorized Cases', () => {
+        it('When token is invalid, expect an Error and status 401', async () => {
           //Arrange
-          let body = { email: {} };
+          let id = userId;
+          let token = invalidToken;
 
           //Act
-          const res = await request(app).post('/login').send(body);
+          const res = await request(app)
+            .get('/user/id/' + id)
+            .set('Authorization', 'Bearer ' + token);
 
           //Assert
-          assert.equal(res.status, 400);
-          assert.equal(res.body.message, '"email" must be a string');
+          assert.equal(res.status, 401);
+          assert.equal(res.body.message, 'Unauthorized');
         });
-        it('When email is of type number, expect an Error and status 400', async () => {
+        it('When token is undefined, expect an Error and status 401', async () => {
           //Arrange
-          let body = { email: 23 };
+          let id = userId;
+          let token = invalidToken;
 
           //Act
-          const res = await request(app).post('/login').send(body);
+          const res = await request(app).get('/user/id/' + id);
 
           //Assert
-          assert.equal(res.status, 400);
-          assert.equal(res.body.message, '"email" must be a string');
+          assert.equal(res.status, 401);
+          assert.equal(res.body.message, 'Unauthorized');
         });
-        it('When email is of type null, expect an Error and status 400', async () => {
+      });
+      describe('Not Found cases with authorized user', () => {
+        it('When admin makes request and user is not found, expect an Error and status 404', async () => {
           //Arrange
-          let body = { email: null };
+          let id = '123';
+          let token = adminToken;
 
           //Act
-          const res = await request(app).post('/login').send(body);
+          const res = await request(app)
+            .get('/user/id/' + id)
+            .set('Authorization', 'Bearer ' + token);
 
           //Assert
-          assert.equal(res.status, 400);
-          assert.equal(res.body.message, '"email" must be a string');
+          assert.equal(res.status, 404);
+          assert.equal(res.body.message, 'Not Found');
         });
-        it('When email is undefined, expect an Error and status 400', async () => {
+        it('When user makes request and user is not found, expect an Error and status 404', async () => {
           //Arrange
-          let body = { email: undefined };
+          let id = '123';
+          let token = userToken;
 
           //Act
-          const res = await request(app).post('/login').send(body);
+          const res = await request(app)
+            .get('/user/id/' + id)
+            .set('Authorization', 'Bearer ' + token);
 
           //Assert
-          assert.equal(res.status, 400);
-          assert.equal(res.body.message, '"email" is required');
-        });
-        it('When email has invalid format, expect an Error and status 400', async () => {
-          //Arrange
-          let body = { email: 'ezart.com' };
-
-          //Act
-          const res = await request(app).post('/login').send(body);
-
-          //Assert
-          assert.equal(res.status, 400);
-          assert.equal(res.body.message, '"email" must be a valid email');
+          assert.equal(res.status, 404);
+          assert.equal(res.body.message, 'Not Found');
         });
       });
     });

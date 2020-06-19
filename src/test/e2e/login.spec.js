@@ -6,7 +6,7 @@ const faker = require('faker');
 const request = require('supertest');
 const config = require('config');
 
-describe('GET /login -> ', () => {
+describe('POST /login -> ', () => {
   let userRole = config.get('role.user');
   let adminRole = config.get('role.admin');
   let secret = config.get('app.secret');
