@@ -3,6 +3,10 @@
     "port": 3030,
     "secret": "secret"
   },
+  "role": {
+    "admin": "admin",
+    "user": "user"
+  },
   "db": {
     "user": {
       "url": "http://www.mocky.io/v2/5808862710000087232b75ac"

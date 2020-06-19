@@ -8,7 +8,53 @@
         "bearerFormat": "JWT"
       }
     },
-    "schemas": {}
+    "schemas": {
+      "authentication_body": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "example@email.com"
+          }
+        }
+      },
+      "token": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "123"
+          }
+        }
+      },
+      "400_data_validation_error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "'email' is required"
+          }
+        }
+      },
+      "404_not_found_error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User Not Found"
+          }
+        }
+      },
+      "500_internal_server_error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Internal Server Error"
+          }
+        }
+      }
+    }
   },
   "servers": [
     {
@@ -30,5 +76,68 @@
       "url": "https://github.com/MykhayloGusak/api_demo_insurance"
     }
   },
-  "paths": {}
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "User authentication",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/authentication_body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/token"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/400_data_validation_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/404_not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/500_internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

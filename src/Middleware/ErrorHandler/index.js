@@ -4,12 +4,27 @@ const {
   InternalServerError,
 } = require('../../Server/errors');
 
-const handleError = (err, res) => {
-  const { statusCode, message } = err;
+const errorHandler = (req, res, next, err) => {
+  const { name = InternalServerError.name } = err;
+  let status, message;
 
-  res.status(statusCode).json({
-    status: 'error',
-    statusCode,
+  switch (name) {
+    case NotFoundError.name:
+    case DataBaseError.name:
+      message = err.message;
+      status = err.status;
+      break;
+    default:
+      message = err.message ? err.message : InternalServerError.message;
+      status = InternalServerError.status;
+      break;
+  }
+
+  res.status(status).json({
     message,
   });
+};
+
+module.exports = {
+  errorHandler,
 };
